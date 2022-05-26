@@ -13,9 +13,9 @@ module.exports = {
         'airbnb/hooks',
         'prettier'
     ],
-    parser: '@typescript-eslint/parser',
     // 优先级低于parse的语法解析配置
     parserOptions: {
+        parser: '@typescript-eslint/parser',
         // 允许使用ES语法
         ecmaVersion: 2020,
         // 允许使用import
@@ -172,7 +172,7 @@ module.exports = {
         'no-unneeded-ternary': 'error', // 禁止不必要的嵌套 var isYes = answer === 'warn' ? true : false;
         'no-unreachable': 'error', // 不能有无法执行的代码
         'no-unused-expressions': 'error', // 禁止无用的表达式
-        'no-unused-vars': ['error', { 'vars': 'all', 'args': 'after-used' }], // 不能有声明后未被使用的变量或参数
+        'no-unused-vars': ['error', { 'vars': 'all', 'args': 'none' }], // 不能有声明后未被使用的变量
         'no-use-before-define': 'error', // 未定义前不能使用
         'no-useless-call': 'error', // 禁止不必要的call和apply
         'no-void': 'error', // 禁用void操作符
@@ -213,7 +213,15 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': ['off'],
         '@typescript-eslint/no-inferrable-types': 'off',
         '@typescript-eslint/no-var-requires': 0,
-        'import/no-extraneous-dependencies': ['error', {'devDependencies': true}]
+        'import/no-extraneous-dependencies': ['error', {'devDependencies': true}],
+        'no-undef': 'off',
+        'react/function-component-definition': [
+            2,
+            {
+                namedComponents: 'arrow-function',
+                unnamedComponents: 'arrow-function'
+            }
+        ] // 函数组件使用箭头函数
     },
     settings: {
         'import/resolver': {
