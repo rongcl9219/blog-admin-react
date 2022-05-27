@@ -1,8 +1,4 @@
-interface Ia {
-    type: string
-}
-
-export const toggleMenu = (): Promise<Ia> => new Promise((resolve) => {
+export const toggleMenu = (): Promise<IAction> => new Promise((resolve) => {
     resolve({type: 'toggle-menu'});
 });
 

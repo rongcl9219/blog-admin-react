@@ -7,6 +7,12 @@ interface CommonState {
     menuOpen: boolean;
 }
 
+interface UserState {
+    username?: string;
+    avatar?: string;
+}
+
 interface IGlobalState {
-    CommonReducer: CommonState
+    CommonReducer: CommonState,
+    UserReducer: UserState
 }
