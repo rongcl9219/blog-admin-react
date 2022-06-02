@@ -1,14 +1,16 @@
+import { TOGGLE_MENU } from './types';
+
 const CommonReducer = (
     prevState: CommonState = {
         menuOpen: false
     },
-    action: IAction = { type: '' }
+    action: IAction<any> = { type: '' }
 ) => {
     const { type } = action;
     const newState = { ...prevState };
 
     switch (type) {
-    case 'toggle-menu':
+    case TOGGLE_MENU:
         newState.menuOpen = !newState.menuOpen;
         return newState;
     default:

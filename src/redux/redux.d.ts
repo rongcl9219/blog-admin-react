@@ -1,6 +1,6 @@
-interface IAction {
+interface IAction<T> {
     type: string;
-    payload?: any;
+    payload?: T;
 }
 
 interface CommonState {
@@ -8,8 +8,11 @@ interface CommonState {
 }
 
 interface UserState {
+    token?: string;
+    refreshToken?: string;
+    tokenExp?: number;
     username?: string;
-    avatar?: string;
+    avatar?: string
 }
 
 interface IGlobalState {
