@@ -22,20 +22,4 @@ SvgIcon.defaultProps = {
     onClick: () => false
 };
 
-// class SvgIcon extends Component<IProps, object> {
-//     constructor(props: IProps) {
-//         super(props);
-//         this.state = {};
-//     }
-//
-//     render() {
-//         const { iconClass } = this.props;
-//         return(
-//             <svg className="svg-icon" aria-hidden="true">
-//                 <use xlinkHref={`#${ iconClass }`} />
-//             </svg>
-//         );
-//     }
-// }
-
 export default SvgIcon;
