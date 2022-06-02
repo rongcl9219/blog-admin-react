@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import store from '@/redux/store';
+import { getUserInfo } from '@/redux/reducers/user/actions';
 import Nprogress from 'nprogress';
 import { checkRouterAuth } from './index';
 import 'nprogress/nprogress.css';
@@ -11,10 +13,17 @@ const RouterBeforeEach = () => {
     useEffect(() => {
         Nprogress.start();
         let obj = checkRouterAuth(location.pathname);
-        let blLogin = sessionStorage.getItem('login');
-        if (obj && obj.meta?.auth && blLogin === 'false') {
-            setAuth(false);
-            navigate('/login', { replace: true });
+        if (obj && obj.meta?.auth) {
+            const { token, username } = store.getState().UserReducer;
+            if (token) {
+                setAuth(true);
+                if (!username) {
+                    getUserInfo(store.dispatch);
+                }
+            } else {
+                setAuth(false);
+                navigate('/login', { replace: true });
+            }
         } else {
             setAuth(true);
         }

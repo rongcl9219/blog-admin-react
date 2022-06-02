@@ -34,7 +34,10 @@ const routes: Array<RouterItem> = [
             { path: 'webInfo', element: <AdminWebInfo /> },
             { path: 'icons', element: <AdminIcons /> },
             { path: 'articleView', element: <ArticleView /> }
-        ]
+        ],
+        meta: {
+            auth: true
+        }
     },
     { path: '/login', element: <Login /> },
     { path: '/403', element: <RefuseError /> },
@@ -61,14 +64,19 @@ const RouteView = () => (
 );
 
 //根据路径获取路由
-const checkAuth = (routers: Array<RouterItem>, path: string): RouterItem | null => {
-    routers.forEach(data => {
-        if (data.path === path) { return data; }
-        if (data.children) {
-            const res: RouterItem | null = checkAuth(data.children, path);
+const checkAuth = (routers: Array<RouterItem>, path: string, pPath?: string): RouterItem | null => {
+    for (let i = 0; i < routers.length; i++) {
+        const route = routers[i];
+        let routePath = path;
+        if (pPath) {
+            routePath = `${pPath === '/' ? '' : path }/${ path }`;
+        }
+        if (routePath === path) { return route; }
+        if (route.children) {
+            const res: RouterItem | null = checkAuth(route.children, path, routePath);
             if (res) { return res; }
         }
-    });
+    }
     return null;
 };
 
