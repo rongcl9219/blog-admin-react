@@ -15,11 +15,13 @@ const RefuseError = lazy(() => import(/* webpackChunkName: "admin-refuseError" *
 const NotFound = lazy(() => import(/* webpackChunkName: "admin-notFound" */ '@/views/NotFound'));
 
 interface Meta {
-    auth: boolean
+    auth?: boolean;
+    title?: string;
 }
 
 interface RouterItem extends RouteObject {
-    meta?: Meta
+    meta?: Meta;
+    children?: RouterItem[];
 }
 
 const routes: Array<RouterItem> = [
@@ -28,16 +30,14 @@ const routes: Array<RouterItem> = [
         element: <Layout />,
         children: [
             { index: true, element: <AdminMain /> },
-            { path: 'class', element: <AdminClass /> },
-            { path: 'tag', element: <AdminTag /> },
-            { path: 'article', element: <AdminArticle /> },
-            { path: 'webInfo', element: <AdminWebInfo /> },
-            { path: 'icons', element: <AdminIcons /> },
-            { path: 'articleView', element: <ArticleView /> }
+            { path: 'class', element: <AdminClass />, meta: { auth: true, title: '分类' } },
+            { path: 'tag', element: <AdminTag />, meta: { auth: true, title: '标签' } },
+            { path: 'article', element: <AdminArticle />, meta: { auth: true, title: '文章' } },
+            { path: 'webInfo', element: <AdminWebInfo />, meta: { auth: true, title: '网站信息' } },
+            { path: 'icons', element: <AdminIcons />, meta: { auth: true, title: '图标' } },
+            { path: 'articleView', element: <ArticleView />, meta: { auth: true } }
         ],
-        meta: {
-            auth: true
-        }
+        meta: { auth: true, title: '首页' }
     },
     { path: '/login', element: <Login /> },
     { path: '/403', element: <RefuseError /> },
@@ -86,4 +86,4 @@ const checkRouterAuth = (path: string): RouterItem | null => {
     return auth;
 };
 
-export { RouteView, checkRouterAuth };
+export { RouteView, checkRouterAuth, routes };
