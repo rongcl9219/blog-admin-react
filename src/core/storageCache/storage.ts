@@ -8,7 +8,9 @@ const ssCache = new Cache({ storage: 'sessionStorage' });
  */
 class StorageCache {
     protected key: string;
+
     protected exp: number;
+
     protected storage: any;
 
     constructor(key: string, exp: number = 0, type: string = 'localStorage') {

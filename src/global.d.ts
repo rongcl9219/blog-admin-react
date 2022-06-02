@@ -12,3 +12,7 @@ interface GIFileInfo {
     key: string;
     url: string;
 }
+
+interface RuleValidator<T> {
+    (rule: any, value: T): Promise<void>;
+}

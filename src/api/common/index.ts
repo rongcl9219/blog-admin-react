@@ -28,9 +28,7 @@ class CommonApi extends HttpRequest {
     /**
      * 刷新token
      */
-    refreshToken = () => {
-        return this.fetchPost({ url: '/refreshToken' });
-    };
+    refreshToken = () => this.fetchPost({ url: '/refreshToken' });
 
     /**
      * 上传图片

@@ -9,7 +9,7 @@ export const cacheThemeInfo = new StorageCache(KEYS.theme);
 /**
  * 保存refreshToken
  */
-export const cacheRefreshToken = new StorageCache(KEYS.refreshToken, 60 * 60 * 24);
+export const cacheRefreshToken = new StorageCache(KEYS.refreshToken, 60 * 60 * 24, 'ss');
 
 /**
  * 保存tokenExp

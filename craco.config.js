@@ -6,22 +6,26 @@ const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i;
 const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV);
 const addPath = dir => path.join(__dirname, dir);
 
+let pluginsArr = [];
+
+if (IS_PROD) {
+    pluginsArr.push(new CompressionWebpackPlugin({
+        filename: '[path].gz[query]',
+        algorithm: 'gzip',
+        test: productionGzipExtensions,
+        threshold: 10240, // 对超过10k的数据进行压缩
+        minRatio: 0.8, // 只有压缩率小于这个值的资源才会被处理
+        deleteOriginalAssets: false // 删除原文件
+    }));
+}
+
 module.exports = {
     webpack: {
         alias: {
             '@': addPath('src')
         },
         productionSourceMap: false,
-        plugins: [
-            new CompressionWebpackPlugin({
-                filename: '[path].gz[query]',
-                algorithm: 'gzip',
-                test: productionGzipExtensions,
-                threshold: 10240, // 对超过10k的数据进行压缩
-                minRatio: 0.8, // 只有压缩率小于这个值的资源才会被处理
-                deleteOriginalAssets: false // 删除原文件
-            })
-        ],
+        plugins: pluginsArr,
         configure: (config) => {
             let newConfig = config;
 
