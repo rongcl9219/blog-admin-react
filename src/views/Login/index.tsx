@@ -168,7 +168,7 @@ class Login extends Component<IProps, IState> {
     }
 }
 
-export default connect(() => ({}), {
-    login: userLogin,
-    loginOut: userLoginOut
-})(Login);
+export default connect(() => ({}), (dispatch) => ({
+    login: userLogin(dispatch),
+    loginOut: userLoginOut(dispatch)
+}))(Login);

@@ -80,16 +80,22 @@ export const getRefreshToken = (dispatch: (action: any) => void): Promise<any> =
 
 /**
  * 用户登录
- * @param username
- * @param password
  */
-export const userLogin = (username: string, password: string): Promise<any> =>
-    UserApi.login(username, password).then((res) => setToken(res.data));
+export const userLogin = (dispatch: any): (username: string, password: string) => Promise<any> => (username: string, password: string): Promise<any> =>
+    UserApi.login(username, password).then((res) => {
+        dispatch(setToken(res.data));
+    });
 
 /**
  * 用户退出登录
  */
-export const userLoginOut = (): Promise<any> => UserApi.loginOut().then(clearToken);
+export const userLoginOut = (dispatch: any): () => Promise<any> => () => UserApi.loginOut().then(() => {
+    dispatch(clearToken());
+    dispatch(setUserInfo({
+        userName: '',
+        avatarUrl: ''
+    }));
+});
 
 /**
  * 获取用户信息
