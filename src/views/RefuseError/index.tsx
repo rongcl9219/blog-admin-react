@@ -10,7 +10,7 @@ const RefuseError = () => {
     const navigate = useNavigate();
 
     const goLoginPage = useCallback(() => {
-        navigate('/login');
+        navigate('/login', { replace: true });
     }, [navigate]);
 
     return (

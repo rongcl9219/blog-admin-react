@@ -1,9 +1,10 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { Menu, Dropdown, Space, Avatar } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { CaretDownOutlined } from '@ant-design/icons';
 import defaultUserImg from '@/assets/images/default_img/default_user.png';
+import ModifyPwd from './ModifyPwd';
 import './userInfo.less';
 
 interface IProps {
@@ -11,6 +12,8 @@ interface IProps {
 }
 
 const UserInfo: FC<IProps> = ({ avatar }) => {
+    const [isUpdateModalVisible, changeUpdateModalVisible] = useState(false);
+
     const navigate = useNavigate();
 
     const handleLoginOut = () => {
@@ -27,7 +30,7 @@ const UserInfo: FC<IProps> = ({ avatar }) => {
                     key: '0'
                 },
                 {
-                    label: <a>修改密码</a>,
+                    label: <a onClick={() => changeUpdateModalVisible(true)}>修改密码</a>,
                     key: '1'
                 },
                 {
@@ -40,15 +43,17 @@ const UserInfo: FC<IProps> = ({ avatar }) => {
             ]}
         />
     );
-
-    return <Dropdown overlayClassName="avatar-dropdown" placement="bottomRight" className="avatar-container" overlay={menu} trigger={['click']}>
-        <a onClick={e => e.preventDefault()}>
-            <Space>
-                <Avatar src={avatar} shape="square" size={40} />
-                <CaretDownOutlined />
-            </Space>
-        </a>
-    </Dropdown>;
+    return <>
+        <Dropdown overlayClassName="avatar-dropdown" placement="bottomRight" className="avatar-container" overlay={menu} trigger={['click']}>
+            <a onClick={e => e.preventDefault()}>
+                <Space>
+                    <Avatar src={avatar} shape="square" size={40} />
+                    <CaretDownOutlined />
+                </Space>
+            </a>
+        </Dropdown>
+        <ModifyPwd visible={isUpdateModalVisible} showModal={changeUpdateModalVisible} />
+    </>;
 };
 
 UserInfo.defaultProps = {
