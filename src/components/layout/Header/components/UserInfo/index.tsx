@@ -47,7 +47,7 @@ const UserInfo: FC<IProps> = ({ avatar }) => {
         <Dropdown overlayClassName="avatar-dropdown" placement="bottomRight" className="avatar-container" overlay={menu} trigger={['click']}>
             <a onClick={e => e.preventDefault()}>
                 <Space>
-                    <Avatar src={avatar} shape="square" size={40} />
+                    <Avatar src={avatar || defaultUserImg} shape="square" size={40} />
                     <CaretDownOutlined />
                 </Space>
             </a>
@@ -57,7 +57,7 @@ const UserInfo: FC<IProps> = ({ avatar }) => {
 };
 
 UserInfo.defaultProps = {
-    avatar: defaultUserImg
+    avatar: ''
 };
 
 export default connect((state: IGlobalState) => ({
