@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { CaretDownOutlined } from '@ant-design/icons';
 import defaultUserImg from '@/assets/images/default_img/default_user.png';
 import ModifyPwd from './ModifyPwd';
+import ModifyUserInfo from './ModifyUserInfo';
 import './userInfo.less';
 
 interface IProps {
@@ -12,7 +13,8 @@ interface IProps {
 }
 
 const UserInfo: FC<IProps> = ({ avatar }) => {
-    const [isUpdateModalVisible, changeUpdateModalVisible] = useState(false);
+    const [isModifyPwdVisible, changeModifyPwdVisible] = useState(false);
+    const [isModifyUserVisible, changeModifyUserVisible] = useState(false);
 
     const navigate = useNavigate();
 
@@ -26,11 +28,11 @@ const UserInfo: FC<IProps> = ({ avatar }) => {
         <Menu
             items={[
                 {
-                    label: <a>个人信息</a>,
+                    label: <a onClick={() => changeModifyUserVisible(true)}>个人信息</a>,
                     key: '0'
                 },
                 {
-                    label: <a onClick={() => changeUpdateModalVisible(true)}>修改密码</a>,
+                    label: <a onClick={() => changeModifyPwdVisible(true)}>修改密码</a>,
                     key: '1'
                 },
                 {
@@ -52,7 +54,8 @@ const UserInfo: FC<IProps> = ({ avatar }) => {
                 </Space>
             </a>
         </Dropdown>
-        <ModifyPwd visible={isUpdateModalVisible} showModal={changeUpdateModalVisible} />
+        <ModifyPwd visible={isModifyPwdVisible} showModal={changeModifyPwdVisible} />
+        <ModifyUserInfo visible={isModifyUserVisible} showModal={changeModifyUserVisible} />
     </>;
 };
 
