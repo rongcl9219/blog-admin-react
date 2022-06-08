@@ -42,7 +42,7 @@ class ClassApi extends HttpRequest {
      * 删除分类
      * @param classId
      */
-    deleteClass(classId: string) {
+    deleteClass(classId: number) {
         return this.fetchPost({
             url: '/admin/deleteClass',
             data: { classId }
@@ -53,7 +53,7 @@ class ClassApi extends HttpRequest {
      * 获取分类信息
      * @param classId
      */
-    getClassInfo(classId: string) {
+    getClassInfo(classId: number) {
         return this.fetchGet({
             url: '/admin/getClassInfo',
             params: { classId }
