@@ -50,15 +50,12 @@ export const clearToken = (): Promise<IAction<ITokenInfo>> =>
         });
     });
 
-export const setUserAvatar = (avatarUrl: string): Promise<IAction<{ avatarUrl: string }>> =>
-    new Promise((resolve) => {
-        resolve({
-            type: SET_AVATAR,
-            payload: {
-                avatarUrl
-            }
-        });
-    });
+export const setUserAvatar = (avatarUrl: string): IAction<{ avatarUrl: string }> => ({
+    type: SET_AVATAR,
+    payload: {
+        avatarUrl
+    }
+});
 
 /**
  * 设置用户信息
