@@ -1,0 +1,67 @@
+.home-page {
+    .card-header {
+        color: rgb(107, 132, 148);
+
+        .header-title {
+            margin-right: 20px;
+            font-size: 20px;
+        }
+    }
+
+    .header-title {
+        color: #42657b;
+        font-size: 18px;
+    }
+
+    .about {
+        padding-left: 20px;
+    }
+
+    .list-item {
+        display: flex;
+        align-items: center;
+        line-height: 28px;
+
+        .list-item-title {
+            display: flex;
+            align-items: center;
+            color: #42657b;
+            cursor: pointer;
+            transition: 0.2s;
+
+            &:hover {
+                color: #1890ff;
+            }
+
+            span {
+                color: #1890ff;
+            }
+        }
+
+        .svg-icon {
+            margin-right: 10px;
+            font-size: 12px;
+            transform: scale(0.7);
+        }
+    }
+
+    .list-article {
+        height: 28px;
+
+        &:hover .list-time {
+            color: #1890ff;
+        }
+
+        .list-time {
+            font-size: 15px;
+            color: #42657b;
+            transition: 0.2s;
+        }
+
+        .article-title {
+            font-size: 15px;
+            padding-left: 10px;
+            color: #1890ff;
+        }
+    }
+}

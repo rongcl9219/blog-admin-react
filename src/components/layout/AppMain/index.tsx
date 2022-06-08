@@ -4,7 +4,9 @@ import './appMain.less';
 
 const AppMain = () => (
     <section className="app-main">
-        <RouterBeforeEach />
+        <div className="app-main-content">
+            <RouterBeforeEach />
+        </div>
     </section>
 );
 
