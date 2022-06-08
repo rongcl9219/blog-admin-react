@@ -4,7 +4,9 @@ interface IAction<T> {
 }
 
 interface CommonState {
-    menuOpen: boolean;
+    menuOpen?: boolean;
+    globalLoading?: boolean;
+    loadingTips?: string;
 }
 
 interface UserState {
