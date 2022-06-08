@@ -1,6 +1,7 @@
-import React, { FC, useCallback, useState, useRef, useMemo } from 'react';
-import { Modal, Row, Col, message, Avatar, Button, Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import React, { Component, createRef, ChangeEvent, MouseEvent, DragEvent, FormEvent } from 'react';
+import { connect } from 'react-redux';
+import { toggleGlobalLoading } from '@/redux/reducers/common/actions';
+import { Modal, Row, Col, message, Avatar, Button } from 'antd';
 import { Md5 } from 'ts-md5/dist/md5';
 import { CommonApi } from '@/api';
 import './uploadAvatar.less';
@@ -44,6 +45,15 @@ interface IProps {
     width?: number;
     height?: number;
     thumbnail: string;
+    setGlobalLoading?: (globalLoading: any) => void,
+    onCropUploadSuccess?: (fileObject: any) => void,
+    onCropUploadFail?: (error: any) => void
+}
+
+interface IStates {
+    scale: IScale;
+    sourceImg: ISourceImg;
+    sourceImgMouseDown: ISourceImgMouseDown;
 }
 
 const sourceImgContainer = {
@@ -83,68 +93,82 @@ const getBase64 = (file: any) => new Promise<string | ArrayBuffer | null>((resol
 
 const isAssetTypeAnImage = (ext: string) => ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext.toLowerCase()) !== -1;
 
-const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, height= 200 }) => {
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-    const [uploadLoading, setUploadLoading] = useState<boolean>(false);
-
-    const [scale, setScale] = useState<IScale>({
-        zoomAddOn: false,
-        zoomSubOn: false,
-        range: 1,
-        rotateLeft: false,
-        rotateRight: false,
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        maxWidth: 0,
-        maxHeight: 0,
-        minWidth: 0,
-        minHeight: 0,
-        naturalWidth: 0,
-        naturalHeight: 0
-    });
+class UploadAvatar extends Component<IProps, IStates> {
+    static defaultProps = {
+        width: 200,
+        height: 200,
+        setGlobalLoading: (globalLoading: any) => globalLoading,
+        onCropUploadSuccess: () => false,
+        onCropUploadFail: () => false
+    };
 
     /* 图片选择区域函数绑定 */
-    const preventDefault = useCallback((e: Event) => {
+    static preventDefault = (e: DragEvent) => {
         e.preventDefault();
         return false;
-    }, []);
+    };
 
-    const [sourceImgMouseDown, setSourceImgMouseDown] = useState<ISourceImgMouseDown>({
-        on: false,
-        mX: 0, // 鼠标按下的坐标
-        mY: 0,
-        x: 0, // scale原图坐标
-        y: 0
-    });
+    fileInputRef = createRef<HTMLInputElement>();
 
-    const [sourceImg, setSourceImg] = useState<ISourceImg>({
-        img: '',
-        imgUrl: '',
-        createImgUrl: ''
-    });
+    canvasRef = createRef<HTMLCanvasElement>();
 
-    const ratio = useMemo(() => width && height ? (width / height) : 1, [height, width]);
+    constructor(props: IProps) {
+        super(props);
+        this.state = {
+            scale: {
+                zoomAddOn: false,
+                zoomSubOn: false,
+                range: 1,
+                rotateLeft: false,
+                rotateRight: false,
+                x: 0,
+                y: 0,
+                width: 0,
+                height: 0,
+                maxWidth: 0,
+                maxHeight: 0,
+                minWidth: 0,
+                minHeight: 0,
+                naturalWidth: 0,
+                naturalHeight: 0
+            },
+            sourceImg: {
+                img: '',
+                imgUrl: '',
+                createImgUrl: ''
+            },
+            sourceImgMouseDown: {
+                on: false,
+                mX: 0, // 鼠标按下的坐标
+                mY: 0,
+                x: 0, // scale原图坐标
+                y: 0
+            }
+        };
+    }
 
-    const sourceImgMasking = useMemo(() => {
+    get ratio() {
+        const { width, height } = this.props;
+        return width && height ? (width / height) : 1;
+    }
+
+    get sourceImgMasking() {
         const sic = sourceImgContainer;
+        const { width, height } = this.props;
         const sicRatio = sic.width / sic.height; // 原图容器宽高比
         let x = 0;
         let y = 0;
         let w = sic.width;
         let h = sic.height;
         let scales = 1;
-        if (ratio < sicRatio) {
-            scales = sic.height / height;
-            w = sic.height * ratio;
+        if (this.ratio < sicRatio) {
+            scales = sic.height / (height as number);
+            w = sic.height * this.ratio;
             x = (sic.width - w) / 2;
         }
-        if (ratio > sicRatio) {
-            scales = sic.width / width;
-            h = sic.width / ratio;
+        if (this.ratio > sicRatio) {
+            scales = sic.width / (width as number);
+            h = sic.width / this.ratio;
             y = (sic.height - h) / 2;
         }
         return {
@@ -154,68 +178,90 @@ const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, 
             width: w,
             height: h
         };
-    }, [height, ratio, width]);
+    }
 
-    const sourceImgStyle = useMemo(() => {
-        const top = `${scale.y + sourceImgMasking.y}px`;
-        const left = `${scale.x + sourceImgMasking.x}px`;
+    get sourceImgStyle() {
+        const { scale } = this.state;
+        const top = `${scale.y + this.sourceImgMasking.y}px`;
+        const left = `${scale.x + this.sourceImgMasking.x}px`;
         return {
             top,
             left,
             width: `${scale.width}px`,
             height: `${scale.height}px`
         };
-    }, [scale.height, scale.width, scale.x, scale.y, sourceImgMasking.x, sourceImgMasking.y]);
+    }
 
-    const sourceImgShadeStyle = useMemo(() => {
+    get sourceImgShadeStyle() {
         const sic = sourceImgContainer;
-        const sim = sourceImgMasking;
+        const sim = this.sourceImgMasking;
         const w = sim.width === sic.width ? sim.width : (sic.width - sim.width) / 2;
         const h = sim.height === sic.height ? sim.height : (sic.height - sim.height) / 2;
         return {
             width: `${w}px`,
             height: `${h}px`
         };
-    }, [sourceImgMasking]);
+    }
 
-    const rangeShow = useMemo(() => Boolean(sourceImg.img), [sourceImg.img]);
+    get rangeShow() {
+        const { sourceImg } = this.state;
+        return Boolean(sourceImg.img);
+    }
 
     // 生成需求图片
-    const createImg = useCallback((e?: Event | number) => {
-        const canvas = canvasRef.current;
+    createImg = (e?: MouseEvent | number) => {
+        const { scale, sourceImg, sourceImgMouseDown } = this.state;
+
+        const { width, height } = this.props;
+        const canvas = this.canvasRef.current;
         if (!canvas) {
             return false;
         }
-        const ctx: any = canvas?.getContext('2d');
-        if (e) {
-            // 取消鼠标按下移动状态
-            sourceImgMouseDown.on = false;
+        const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+        if (!ctx) {
+            return false;
         }
-        canvas.width = width;
-        canvas.height = height;
+        if (e) {
+            if (!sourceImgMouseDown.on) {
+                return false;
+            }
+            // 取消鼠标按下移动状态
+            this.setState({
+                sourceImgMouseDown: {
+                    ...sourceImgMouseDown,
+                    on : false
+                }
+            });
+        }
+        canvas.width = width as number;
+        canvas.height = height as number;
         ctx.clearRect(0, 0, width as number, height as number);
         // 将透明区域设置为白色底边
         ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, width as number, height as number);
-        ctx.translate(width * 0.5, height * 0.5);
-        ctx.translate(-width * 0.5, -height * 0.5);
+        ctx.translate((width as number) * 0.5, (height as number) * 0.5);
+        ctx.translate(-(width as number) * 0.5, -(height as number) * 0.5);
         ctx.drawImage(
             sourceImg.img,
-            scale.x / sourceImgMasking.scale,
-            scale.y / sourceImgMasking.scale,
-            scale.width / sourceImgMasking.scale,
-            scale.height / sourceImgMasking.scale
+            scale.x / this.sourceImgMasking.scale,
+            scale.y / this.sourceImgMasking.scale,
+            scale.width / this.sourceImgMasking.scale,
+            scale.height / this.sourceImgMasking.scale
         );
-        setSourceImg({
-            ...sourceImg,
-            createImgUrl: canvas.toDataURL('image/png')
+        this.setState({
+            sourceImg: {
+                ...sourceImg,
+                createImgUrl: canvas.toDataURL('image/png')
+            }
         });
-    }, [height, scale.height, scale.width, scale.x, scale.y, sourceImg, sourceImgMasking.scale, sourceImgMouseDown, width]);
+    };
 
     // 剪裁前准备工作
-    const startCrop = useCallback(() => {
-        const sim = sourceImgMasking;
-        const img = new Image();
+    startCrop = () => {
+        const { sourceImg, scale } = this.state;
+        const { width, height } = this.props;
+        const sim = this.sourceImgMasking;
+        let img = new Image();
         img.src = sourceImg.imgUrl as string;
         img.onload = () => {
             const nWidth = img.naturalWidth;
@@ -226,88 +272,104 @@ const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, 
             let x = 0;
             let y = 0;
             // 图片像素不达标
-            if (nWidth < width || nHeight < height) {
+            if (nWidth < (width as number) || nHeight < (height as number)) {
                 message.warn('图片像素不达标').then();
                 return false;
             }
-            if (ratio > nRatio) {
+            if (this.ratio > nRatio) {
                 h = w / nRatio;
                 y = (sim.height - h) / 2;
             }
-            if (ratio < nRatio) {
+            if (this.ratio < nRatio) {
                 w = h * nRatio;
                 x = (sim.width - w) / 2;
             }
-            setScale({ ...scale,
-                range: 0,
-                x: x,
-                y: y,
-                width: w,
-                height: h,
-                minWidth: w,
-                minHeight: h,
-                maxWidth: nWidth * sim.scale,
-                maxHeight: nHeight * sim.scale,
-                naturalWidth: nWidth,
-                naturalHeight: nHeight
+            this.setState({
+                scale: {
+                    ...scale,
+                    range: 0,
+                    x: x,
+                    y: y,
+                    width: w,
+                    height: h,
+                    minWidth: w,
+                    minHeight: h,
+                    maxWidth: nWidth * sim.scale,
+                    maxHeight: nHeight * sim.scale,
+                    naturalWidth: nWidth,
+                    naturalHeight: nHeight
+                },
+                sourceImg: {
+                    ...sourceImg,
+                    img: img
+                }
+            }, () => {
+                this.createImg();
             });
-            setSourceImg({ ...sourceImg, img: img });
-            createImg();
         };
-    },[createImg, height, ratio, scale, sourceImg, sourceImgMasking, width]);
+    };
 
     // 鼠标按下图片准备移动
-    const imgStartMove = useCallback((e: MouseEvent) => {
+    imgStartMove = (e: MouseEvent) => {
         e.preventDefault();
-        setSourceImgMouseDown({
-            ...sourceImgMouseDown,
-            mX: e.screenX,
-            mY: e.screenY,
-            x: scale.x,
-            y: scale.y,
-            on: true
+        const { sourceImgMouseDown, scale } = this.state;
+        this.setState({
+            sourceImgMouseDown: {
+                ...sourceImgMouseDown,
+                mX: e.screenX,
+                mY: e.screenY,
+                x: scale.x,
+                y: scale.y,
+                on: true
+            }
         });
-    }, [scale.x, scale.y, sourceImgMouseDown]);
+    };
 
     //鼠标按下状态下移动，图片移动
-    const imgMove = useCallback((e: MouseEvent) => {
+    imgMove = (e: MouseEvent) => {
         e.preventDefault();
+        const { sourceImgMouseDown, scale } = this.state;
         const { on, mX, mY, x, y } = sourceImgMouseDown;
-        const sim = sourceImgMasking;
-        const nX = e.screenX;
-        const nY = e.screenY;
-        const dX = nX - mX;
-        const dY = nY - mY;
-        let rX = x + dX;
-        let rY = y + dY;
-        if (!on) {
-            return false;
+        if (on) {
+            const sim = this.sourceImgMasking;
+            const nX = e.screenX;
+            const nY = e.screenY;
+            const dX = nX - mX;
+            const dY = nY - mY;
+            let rX = x + dX;
+            let rY = y + dY;
+            if (!on) {
+                return false;
+            }
+            if (rX > 0) {
+                rX = 0;
+            }
+            if (rY > 0) {
+                rY = 0;
+            }
+            if (rX < sim.width - scale.width) {
+                rX = sim.width - scale.width;
+            }
+            if (rY < sim.height - scale.height) {
+                rY = sim.height - scale.height;
+            }
+            this.setState({
+                scale: {
+                    ...scale,
+                    x: rX,
+                    y: rY
+                }
+            });
         }
-        if (rX > 0) {
-            rX = 0;
-        }
-        if (rY > 0) {
-            rY = 0;
-        }
-        if (rX < sim.width - scale.width) {
-            rX = sim.width - scale.width;
-        }
-        if (rY < sim.height - scale.height) {
-            rY = sim.height - scale.height;
-        }
-        setScale({
-            ...scale,
-            x: rX,
-            y: rY
-        });
-    }, [scale, sourceImgMasking, sourceImgMouseDown]);
+    };
 
     // 缩放原图
-    const zoomImg = useCallback((newRange: number) => {
+    zoomImg = (newRange: number) => {
+        const { scale } = this.state;
         const { maxWidth, maxHeight, minWidth, minHeight, x, y } = scale;
         const scWidth = scale.width;
         const scHeight = scale.height;
-        const sim = sourceImgMasking;
+        const sim = this.sourceImgMasking;
         // 蒙版宽高
         const sWidth = sim.width;
         const sHeight = sim.height;
@@ -331,119 +393,153 @@ const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, 
             nY = sHeight - nHeight;
         }
         // 赋值处理
-        setScale({
-            ...scale,
-            x: nX,
-            y: nY,
-            width: nWidth,
-            height: nHeight,
-            range: newRange
-        });
-        setTimeout(() => {
-            if (scale.range === newRange) {
-                createImg();
+        this.setState({
+            scale: {
+                ...scale,
+                x: nX,
+                y: nY,
+                width: nWidth,
+                height: nHeight,
+                range: newRange
             }
-        }, 300);
-    }, [createImg, scale, sourceImgMasking]);
+        }, () => {
+            const { scale: newScale } = this.state;
+            if (newScale.range === newRange) {
+                this.createImg();
+            }
+        });
+    };
 
     // 按钮按下开始放大
-    const startZoomAdd = useCallback(() => {
-        setScale({
-            ...scale,
-            zoomAddOn: true
-        });
+    startZoomAdd = () => {
+        const { scale } = this.state;
         const zoom = () => {
-            if (scale.zoomAddOn) {
-                const range = scale.range >= 100 ? 100 : ++scale.range;
-                zoomImg(range);
+            const { scale: newScale } = this.state;
+            if (newScale.zoomAddOn) {
+                let range = 100;
+                if (newScale.range < 100) {
+                    range = newScale.range + 1;
+                }
+                this.zoomImg(range);
                 setTimeout(() => {
                     zoom();
                 }, 60);
             }
         };
-        zoom();
-    }, [scale, zoomImg]);
+        if (scale.range < 100) {
+            this.setState({
+                scale: {
+                    ...scale,
+                    zoomAddOn: true
+                }
+            }, () => {
+                zoom();
+            });
+        }
+    };
 
     // 按钮松开或移开取消放大
-    const endZoomAdd = useCallback(() => {
-        setScale({
-            ...scale,
-            zoomAddOn: false
-        });
-    }, [scale]);
+    endZoomAdd = () => {
+        const { scale } = this.state;
+        if (scale.zoomAddOn) {
+            this.setState({
+                scale: {
+                    ...scale,
+                    zoomAddOn: false
+                }
+            });
+        }
+    };
 
     // 按钮按下开始缩小
-    const startZoomSub = useCallback(() => {
-        setScale({
-            ...scale,
-            zoomSubOn: true
-        });
+    startZoomSub = () => {
+        const { scale } = this.state;
         const zoom = () => {
-            if (scale.zoomSubOn) {
-                const range = scale.range <= 0 ? 0 : --scale.range;
-                zoomImg(range);
+            const { scale: newScale } = this.state;
+            if (newScale.zoomSubOn) {
+                let range = 0;
+                if (newScale.range > 0) {
+                    range = newScale.range - 1;
+                }
+                this.zoomImg(range);
                 setTimeout(() => {
                     zoom();
                 }, 60);
             }
         };
-        zoom();
-    }, [scale, zoomImg]);
+        if (scale.range > 0) {
+            this.setState({
+                scale: {
+                    ...scale,
+                    zoomSubOn: true
+                }
+            }, () => {
+                zoom();
+            });
+        }
+    };
 
     // 按钮松开或移开取消缩小
-    const endZoomSub = useCallback(() => {
-        setScale({
-            ...scale,
-            zoomSubOn: false
-        });
-    }, [scale]);
+    endZoomSub = () => {
+        const { scale } = this.state;
+        if (scale.zoomSubOn) {
+            this.setState({
+                scale: {
+                    ...scale,
+                    zoomSubOn: false
+                }
+            });
+        }
+    };
 
-    const zoomChange = useCallback((e: Event) => {
+    zoomChange = (e: FormEvent) => {
         const target = e.target as HTMLInputElement;
-        zoomImg(parseFloat(target.value));
-    }, [zoomImg]);
+        this.zoomImg(parseFloat(target.value));
+    };
 
-    const reset = useCallback(() => {
-        setScale({
-            ...scale,
-            zoomAddOn: false, // 按钮缩放事件开启
-            zoomSubOn: false, // 按钮缩放事件开启
-            range: 1, // 最大100
-            rotateLeft: false, // 按钮向左旋转事件开启
-            rotateRight: false, // 按钮向右旋转事件开启
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
-            maxWidth: 0,
-            maxHeight: 0,
-            minWidth: 0, // 最宽
-            minHeight: 0,
-            naturalWidth: 0, // 原宽
-            naturalHeight: 0,
-            sourceImgMouseDown: {
-                on: false,
-                mX: 0, // 鼠标按下的坐标
-                mY: 0,
-                x: 0, // scale原图坐标
-                y: 0
+    reset = () => {
+        const { scale, sourceImg } = this.state;
+        this.setState({
+            scale: {
+                ...scale,
+                zoomAddOn: false, // 按钮缩放事件开启
+                zoomSubOn: false, // 按钮缩放事件开启
+                range: 1, // 最大100
+                rotateLeft: false, // 按钮向左旋转事件开启
+                rotateRight: false, // 按钮向右旋转事件开启
+                x: 0,
+                y: 0,
+                width: 0,
+                height: 0,
+                maxWidth: 0,
+                maxHeight: 0,
+                minWidth: 0, // 最宽
+                minHeight: 0,
+                naturalWidth: 0, // 原宽
+                naturalHeight: 0,
+                sourceImgMouseDown: {
+                    on: false,
+                    mX: 0, // 鼠标按下的坐标
+                    mY: 0,
+                    x: 0, // scale原图坐标
+                    y: 0
+                }
+            },
+            sourceImg: {
+                ...sourceImg,
+                img: '',
+                imgUrl: '',
+                createImgUrl: ''
             }
         });
+    };
 
-        setSourceImg({
-            ...sourceImg,
-            img: '',
-            imgUrl: '',
-            createImgUrl: ''
-        });
-    }, [scale, sourceImg]);
-
-    const fileChange = useCallback((e: Event) => {
-        console.log('fileChange');
+    fileChange = (e: ChangeEvent) => {
         e.preventDefault();
+        const { sourceImg } = this.state;
         const target = e.target as HTMLInputElement;
         const { files } = target;
-        reset();
+        this.reset();
         if (files && files.length > 0) {
             const file: File = files[0];
 
@@ -466,21 +562,41 @@ const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, 
             // 无法直接读取，先转成base64格式
             getBase64(file).then((data) => {
                 sourceImg.imgUrl = data;
-                startCrop();
+                this.setState({
+                    sourceImg: {
+                        ...sourceImg,
+                        imgUrl: data
+                    }
+                }, () => {
+                    this.startCrop();
+                });
             });
         }
-    }, [reset, sourceImg, startCrop]);
+    };
 
-    const chooseFile = useCallback(() => {
-        fileInputRef.current?.click();
-    }, []);
+    chooseFile = () => {
+        this.fileInputRef.current?.click();
+    };
 
-    const submitUpload = useCallback(() => {
-        setUploadLoading(true);
+    submitUpload = () => {
+        const { sourceImg } = this.state;
+        const { thumbnail, setGlobalLoading, onCropUploadSuccess, onCropUploadFail, showModal } = this.props;
+        if (setGlobalLoading) {
+            setGlobalLoading({
+                isLoading: true,
+                loadingTips: '上传中...'
+            });
+        }
 
         if (!sourceImg.createImgUrl) {
             message.warning('请选择上传图片').then();
-            setUploadLoading(false);
+            if (setGlobalLoading) {
+                setTimeout(() => {
+                    setGlobalLoading({
+                        isLoading: false
+                    });
+                }, 300);
+            }
             return false;
         }
 
@@ -502,31 +618,49 @@ const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, 
                             key: key,
                             url: data.url
                         };
-                        console.log(fileObj);
-                        // onCropUploadSuccess(fileObj);
+                        if (onCropUploadSuccess) {
+                            onCropUploadSuccess(fileObj);
+                        }
+                        showModal(false);
                     })
                     .catch((error) => {
-                        console.log(error);
-                        // onCropUploadFail(error);
+                        if (onCropUploadFail) {
+                            onCropUploadFail(error);
+                        }
                     })
                     .finally(() => {
-                        setUploadLoading(false);
+                        if (setGlobalLoading) {
+                            setTimeout(() => {
+                                setGlobalLoading({
+                                    isLoading: false
+                                });
+                            }, 300);
+                        }
                     });
             })
             .catch((err) => {
                 message.error(err.msg || '获取上传token失败').then();
             })
             .finally(() => {
-                setUploadLoading(false);
+                if (setGlobalLoading) {
+                    setTimeout(() => {
+                        setGlobalLoading({
+                            isLoading: false
+                        });
+                    }, 300);
+                }
             });
-    }, [sourceImg.createImgUrl, thumbnail]);
+    };
 
-    return <Spin spinning={uploadLoading} indicator={<LoadingOutlined />} tip="上传中...">
-        <Modal title="上传头像"
+    render() {
+        const { sourceImg, scale } = this.state;
+        const { visible, showModal, width, height } = this.props;
+        return <Modal title="上传头像"
             maskClosable={false}
             width={600}
             destroyOnClose
             visible={visible}
+            afterClose={this.reset}
             footer={null}
             onCancel={() => showModal(false)}>
             <div className="img-copper-wrapper">
@@ -536,28 +670,28 @@ const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, 
                             <div className="img-copper-con">
                                 <img className="img-copper-img" alt=''
                                     src={String(sourceImg.imgUrl)}
-                                    style={sourceImgStyle}
-                                    onDrag={() => preventDefault}
-                                    onDragStart={() => preventDefault}
-                                    onDragEnd={() => preventDefault}
-                                    onDragLeave={() => preventDefault}
-                                    onDragOver={() => preventDefault}
-                                    onDragEnter={() => preventDefault}
-                                    onDrop={() => preventDefault}
-                                    onMouseDown={() => imgStartMove}
-                                    onMouseMove={() => imgMove}
-                                    onMouseUp={() => createImg}
-                                    onMouseOut={() => createImg}/>
+                                    style={this.sourceImgStyle}
+                                    onDrag={(e) => UploadAvatar.preventDefault(e)}
+                                    onDragStart={(e) => UploadAvatar.preventDefault(e)}
+                                    onDragEnd={(e) => UploadAvatar.preventDefault(e)}
+                                    onDragLeave={(e) => UploadAvatar.preventDefault(e)}
+                                    onDragOver={(e) => UploadAvatar.preventDefault(e)}
+                                    onDragEnter={(e) => UploadAvatar.preventDefault(e)}
+                                    onDrop={(e) => UploadAvatar.preventDefault(e)}
+                                    onMouseDown={(e) => this.imgStartMove(e)}
+                                    onMouseMove={(e) => this.imgMove(e)}
+                                    onMouseUp={(e) => this.createImg(e)}
+                                    onMouseOut={(e) => this.createImg(e)}/>
                                 <div
-                                    style={sourceImgShadeStyle}
+                                    style={this.sourceImgShadeStyle}
                                     className="img-copper-img-shade img-copper-img-shade-1"
                                 />
                                 <div
-                                    style={sourceImgShadeStyle}
+                                    style={this.sourceImgShadeStyle}
                                     className="img-copper-img-shade img-copper-img-shade-2"
                                 />
                             </div>
-                            { rangeShow ? <div className="img-copper-range">
+                            { this.rangeShow ? <div className="img-copper-range">
                                 <input
                                     className="img-copper-scale-input"
                                     value={scale.range}
@@ -565,19 +699,19 @@ const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, 
                                     step="1"
                                     min="0"
                                     max="100"
-                                    onInput={() => zoomChange}
+                                    onInput={(e) => this.zoomChange(e)}
                                 />
                                 <i
                                     className="img-copper-scale-down"
-                                    onMouseDown={startZoomSub}
-                                    onMouseOut={endZoomSub}
-                                    onMouseUp={endZoomSub}
+                                    onMouseDown={this.startZoomSub}
+                                    onMouseOut={this.endZoomSub}
+                                    onMouseUp={this.endZoomSub}
                                 />
                                 <i
                                     className="img-copper-scale-plus"
-                                    onMouseDown={startZoomAdd}
-                                    onMouseOut={endZoomAdd}
-                                    onMouseUp={endZoomAdd}
+                                    onMouseDown={this.startZoomAdd}
+                                    onMouseOut={this.endZoomAdd}
+                                    onMouseUp={this.endZoomAdd}
                                 />
                             </div> : null }
                         </div>
@@ -595,25 +729,22 @@ const UploadAvatar: FC<IProps> = ({ visible, thumbnail, showModal, width = 200, 
                             <div className="upload-avatar">
                                 <input
                                     style={{ display: 'none' }}
-                                    ref={fileInputRef}
+                                    ref={this.fileInputRef}
                                     type="file"
-                                    onChange={() => fileChange}
+                                    onChange={(e) => this.fileChange(e)}
                                 />
-                                <Button size="small" style={{ marginRight: '10px' }} type="primary" onClick={chooseFile}>选择</Button>
-                                <Button size="small" type="primary" onClick={submitUpload}>确定</Button>
+                                <Button size="small" style={{ marginRight: '10px' }} type="primary" onClick={this.chooseFile}>选择</Button>
+                                <Button size="small" type="primary" onClick={this.submitUpload}>确定</Button>
                             </div>
                         </div>
                     </Col>
                 </Row>
-                <canvas style={{ display: 'none' }} ref={canvasRef} width={width} height={height} />
+                <canvas style={{ display: 'none' }} ref={this.canvasRef} width={width} height={height} />
             </div>
-        </Modal>
-    </Spin>;
-};
+        </Modal>;
+    }
+}
 
-UploadAvatar.defaultProps = {
-    width: 200,
-    height: 200
-};
-
-export default UploadAvatar;
+export default connect(() => ({}), {
+    setGlobalLoading: toggleGlobalLoading
+})(UploadAvatar);
