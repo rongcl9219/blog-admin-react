@@ -174,7 +174,7 @@ module.exports = {
         'no-unneeded-ternary': 'error', // 禁止不必要的嵌套 var isYes = answer === 'warn' ? true : false;
         'no-unreachable': 'error', // 不能有无法执行的代码
         'no-unused-expressions': 'error', // 禁止无用的表达式
-        'no-unused-vars': ['error', { 'vars': 'all', 'args': 'none' }], // 不能有声明后未被使用的变量
+        'no-unused-vars': ['warn', { 'vars': 'all', 'args': 'none' }], // 不能有声明后未被使用的变量
         'no-use-before-define': 'error', // 未定义前不能使用
         'no-useless-call': 'error', // 禁止不必要的call和apply
         'no-void': 'error', // 禁用void操作符

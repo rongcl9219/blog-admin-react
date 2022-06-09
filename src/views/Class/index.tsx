@@ -88,7 +88,6 @@ const ClassAdmin: FC<IProps> = ({ setGlobalLoading }) => {
     const openClassModal = (classId?: number) => {
         if (classId) {
             ClassApi.getClassInfo(classId).then(res => {
-                console.log(res);
                 form.setFieldsValue({
                     className: res.data.className,
                     classCode: res.data.classCode,

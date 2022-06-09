@@ -42,7 +42,7 @@ class TagClass extends HttpRequest {
      * 删除标签
      * @param tagId
      */
-    deleteTag(tagId: string) {
+    deleteTag(tagId: number) {
         return this.fetchPost({
             url: '/admin/deleteTag',
             data: { tagId }
@@ -53,7 +53,7 @@ class TagClass extends HttpRequest {
      * 获取标签信息
      * @param tagId
      */
-    getTagInfo(tagId: string) {
+    getTagInfo(tagId: number) {
         return this.fetchGet({
             url: '/admin/getTagInfo',
             params: { tagId }
