@@ -229,7 +229,7 @@ const ClassAdmin: FC<IProps> = ({ setGlobalLoading }) => {
         <Table rowKey={record => String(record.classId)}
             loading={tableLoading}
             columns={columns}
-            pagination={pagination}
+            pagination={{ ...pagination, showTotal: total => `共 ${total} 条` }}
             onChange={handleTableChange}
             dataSource={classList} />
         <Modal visible={classModal.visible}

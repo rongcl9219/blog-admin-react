@@ -7,11 +7,15 @@ import { RouteView } from '@/router';
 import '@/style/reset.less';
 import '@/style/app.less';
 import '@/svg';
+import zhCN from 'antd/lib/locale/zh_CN';
+import { ConfigProvider } from 'antd';
 
 ReactDOM.render(
     <Provider store={store}>
         <BrowserRouter>
-            <RouteView />
+            <ConfigProvider locale={zhCN}>
+                <RouteView />
+            </ConfigProvider>
         </BrowserRouter>
     </Provider>,
     document.getElementById('root')
