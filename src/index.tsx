@@ -6,6 +6,7 @@ import store from '@/redux/store';
 import { RouteView } from '@/router';
 import '@/style/reset.less';
 import '@/style/app.less';
+import 'antd/dist/antd.variable.min.css';
 import '@/svg';
 import zhCN from 'antd/lib/locale/zh_CN';
 import { ConfigProvider } from 'antd';

@@ -64,12 +64,6 @@ module.exports = {
             options: {
                 lessLoaderOptions: {
                     lessOptions: {
-                        modifyVars: {
-                            '@menu-item-vertical-margin': '0px',
-                            '@menu-item-boundary-margin': '0px',
-                            '@menu-inline-toplevel-item-height': '50px',
-                            '@menu-item-height': '50px'
-                        },
                         javascriptEnabled: true
                     }
                 }
@@ -78,7 +72,6 @@ module.exports = {
     ],
     babel: {
         plugins: [
-            ['import', { libraryName: 'antd', libraryDirectory: 'es', style: true }],
             ['@babel/plugin-proposal-decorators', { legacy: true }]
         ]
     },
