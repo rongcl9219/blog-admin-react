@@ -627,15 +627,6 @@ class UploadAvatar extends Component<IProps, IStates> {
                         if (onCropUploadFail) {
                             onCropUploadFail(error);
                         }
-                    })
-                    .finally(() => {
-                        if (setGlobalLoading) {
-                            setTimeout(() => {
-                                setGlobalLoading({
-                                    isLoading: false
-                                });
-                            }, 300);
-                        }
                     });
             })
             .catch((err) => {
