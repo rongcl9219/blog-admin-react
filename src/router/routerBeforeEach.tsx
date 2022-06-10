@@ -4,7 +4,6 @@ import store from '@/redux/store';
 import { getUserInfo } from '@/redux/reducers/user/actions';
 import Nprogress from 'nprogress';
 import { checkRouterAuth } from './index';
-import 'nprogress/nprogress.css';
 
 const RouterBeforeEach = () => {
     const navigate = useNavigate();

@@ -22,31 +22,35 @@ interface Meta {
 interface RouterItem extends RouteObject {
     meta?: Meta;
     children?: RouterItem[];
+    component?: React.ReactNode;
 }
 
 const routes: Array<RouterItem> = [
     {
         path: '/',
-        element: <Layout />,
+        component: <Layout />,
         children: [
-            { index: true, element: <AdminMain /> },
-            { path: 'class', element: <AdminClass />, meta: { auth: true, title: '分类' } },
-            { path: 'tag', element: <AdminTag />, meta: { auth: true, title: '标签' } },
-            { path: 'article', element: <AdminArticle />, meta: { auth: true, title: '文章' } },
-            { path: 'webInfo', element: <AdminWebInfo />, meta: { auth: true, title: '网站信息' } },
-            { path: 'icons', element: <AdminIcons />, meta: { auth: true, title: '图标' } },
-            { path: 'articleView', element: <ArticleView />, meta: { auth: true } }
+            { index: true, component: <AdminMain /> },
+            { path: 'class', component: <AdminClass />, meta: { auth: true, title: '分类' } },
+            { path: 'tag', component: <AdminTag />, meta: { auth: true, title: '标签' } },
+            { path: 'article', component: <AdminArticle />, meta: { auth: true, title: '文章' } },
+            { path: 'webInfo', component: <AdminWebInfo />, meta: { auth: true, title: '网站信息' } },
+            { path: 'icons', component: <AdminIcons />, meta: { auth: true, title: '图标' } },
+            { path: 'articleView', component: <ArticleView />, meta: { auth: true } }
         ],
         meta: { auth: true, title: '首页' }
     },
-    { path: '/login', element: <Login /> },
-    { path: '/403', element: <RefuseError /> },
-    { path: '*', element: <NotFound /> }
+    { path: '/login', component: <Login /> },
+    { path: '/403', component: <RefuseError /> },
+    { path: '*', component: <NotFound /> }
 ];
 
 // 路由处理方式
 const generateRouter = (routers: Array<RouterItem>) => routers.map((item) => {
     let newItem = item;
+    newItem.element = <Suspense fallback={<Nprogress />}>
+        { newItem.component }
+    </Suspense>;
     if (newItem.children) {
         newItem.children = generateRouter(newItem.children);
     }
@@ -57,11 +61,7 @@ function Routes() {
     return useRoutes(generateRouter(routes));
 }
 
-const RouteView = () => (
-    <Suspense fallback={<Nprogress />}>
-        <Routes />
-    </Suspense>
-);
+const RouteView = () => <Routes />;
 
 //根据路径获取路由
 const checkAuth = (routers: Array<RouterItem>, path: string, pPath?: string): RouterItem | null => {
