@@ -20,3 +20,18 @@
     --ant-primary-color-active-deprecated-f-30: rgba(230,247,255,0.3);
     --ant-primary-color-active-deprecated-d-02: #dcf4ff;
 }
+
+// 修改nProgress的颜色
+#nprogress {
+    & .bar {
+        background-color: var(--ant-primary-color) !important;
+    }
+    & .peg {
+        box-shadow: 0 0 10px var(--ant-primary-color), 0 0 5px var(--ant-primary-color) !important;
+    }
+    & .spinner-icon {
+        border-top-color: var(--ant-primary-color);
+        border-left-color: var(--ant-primary-color);
+    }
+}
+

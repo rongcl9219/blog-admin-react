@@ -6,8 +6,7 @@ import { setTheme, themeColor } from '@/theme/theme';
 import './themePicker.less';
 
 interface IProps {
-    handeOk: (color: any) => void,
-    handleCancel: () => void
+    showClose: () => void
 }
 
 interface IPreColor {
@@ -16,7 +15,7 @@ interface IPreColor {
 }
 
 // 默认颜色
-const defaultColor = '#1890ff';
+const defaultColor = themeColor || '#1890ff';
 
 // 预设颜色
 const preDefineColors: IPreColor[] = [
@@ -54,17 +53,27 @@ const preDefineColors: IPreColor[] = [
     }
 ];
 
-const ColorPicker: FC<IProps> = ({ handeOk, handleCancel }) => {
-    const [color, setColor] = useState<string>(themeColor || defaultColor);
+const ColorPicker: FC<IProps> = ({ showClose }) => {
+    const [color, setColor] = useState<string>(defaultColor);
     const onChange = (c: any) => {
         setColor(c.hex);
     };
+
+    const handleCancel = () => {
+        setColor(defaultColor);
+        showClose();
+    };
+
+    const handleOk = () => {
+        setTheme(color);
+    };
+
     return <div className="theme-picker">
         <SketchPicker presetColors={preDefineColors} color={color} onChange={onChange} />
         <div className="theme-picker-tool">
             <Space>
                 <Button size="small" onClick={handleCancel}>取消</Button>
-                <Button size="small" type="primary" onClick={() => handeOk(color)}>确定</Button>
+                <Button size="small" type="primary" onClick={handleOk}>确定</Button>
             </Space>
         </div>
     </div>;
@@ -72,28 +81,17 @@ const ColorPicker: FC<IProps> = ({ handeOk, handleCancel }) => {
 
 const ThemePicker = () => {
     const [visible, setVisible] = useState<boolean>(false);
-    const [color, setColor] = useState<string>(themeColor || defaultColor);
-
-    const handleOk = (c: any) => {
-        setColor(c);
-        setTheme(c);
-        setVisible(false);
-    };
 
     const handleVisibleChange = (newVisible: boolean) => {
         setVisible(newVisible);
     };
 
-    const pickerBtnStyle = useMemo(() => ({
-        color: color
-    }), [color]);
-
     return <Popover visible={visible}
         placement="bottomRight"
         trigger="click"
         onVisibleChange={handleVisibleChange}
-        content={<ColorPicker handeOk={handleOk} handleCancel={() => setVisible(false)} />}>
-        <div className="theme-picker-trigger" style={pickerBtnStyle} onClick={() => setVisible(true)}>
+        content={<ColorPicker showClose={() => setVisible(false)} />}>
+        <div className="theme-picker-trigger" onClick={() => setVisible(true)}>
             <SvgIcon iconClass="theme" />
         </div>
     </Popover>;
