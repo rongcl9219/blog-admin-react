@@ -10,6 +10,9 @@ import 'antd/dist/antd.variable.min.css';
 import '@/svg';
 import zhCN from 'antd/lib/locale/zh_CN';
 import { ConfigProvider } from 'antd';
+import { initTheme } from '@/theme/theme';
+
+initTheme();
 
 ReactDOM.render(
     <Provider store={store}>
