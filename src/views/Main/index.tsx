@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Card, Button, Row, Col } from 'antd';
 import SvgIcon from '@/components/SvgIcon';
+import NoData from '@/components/NoData';
 import { ArticleApi } from '@/api';
 import { formatDate } from '@/utils/tools';
 import './main.less';
@@ -15,10 +16,14 @@ const MainAdmin = () => {
         { name: '开源项目地址', link: 'https://github.com/rongcl9219' },
         {
             name: '前台项目地址',
-            link: 'https://github.com/rongcl9219/my-blog-client'
+            link: 'https://github.com/rongcl9219/blog-front-client'
         },
         {
-            name: '后台项目地址',
+            name: '管理后台项目地址',
+            link: 'https://github.com/rongcl9219/blog-admin-react'
+        },
+        {
+            name: '服务端项目地址',
             link: 'https://github.com/rongcl9219/my-blog-server'
         }
     ];
@@ -66,6 +71,9 @@ const MainAdmin = () => {
                                         <span className="article-title">{ article.articleTitle }</span>
                                     </Button>
                                 </li>)
+                            }
+                            {
+                                currentArticles.length === 0 && <NoData style={{ width: '200px', margin: '0 auto' }} />
                             }
                         </ul>
                     </Card>
