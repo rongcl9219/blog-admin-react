@@ -9,7 +9,7 @@ import { ClassInfo } from '@/api/class/types';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 
 interface IProps {
-    setGlobalLoading: (globalLoading: any) => void;
+    setGlobalLoading: (globalLoading: GIGlobalLoading) => void;
 }
 
 interface ITagModal {

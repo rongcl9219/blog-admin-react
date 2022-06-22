@@ -10,7 +10,7 @@ interface IProps {
     visible: boolean;
     showModal: (visible: boolean) => void,
     setAvatar: (avatar: string) => void,
-    setGlobalLoading: (globalLoading: any) => void
+    setGlobalLoading: (globalLoading: GIGlobalLoading) => void
 }
 
 interface IUserInfoForm {
@@ -67,7 +67,7 @@ const ModifyUserInfo: FC<IProps> = ({ visible, showModal, setAvatar, setGlobalLo
     const updateUserInfo = () => {
         setGlobalLoading({
             isLoading: true,
-            globalTips: '保存中...'
+            loadingTips: '保存中...'
         });
         const formVal = form.getFieldsValue();
         const data = {

@@ -16,3 +16,8 @@ interface GIFileInfo {
 interface RuleValidator<T> {
     (rule: any, value: T): Promise<void>;
 }
+
+interface GIGlobalLoading {
+    isLoading: boolean;
+    loadingTips?: string;
+}

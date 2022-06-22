@@ -45,7 +45,7 @@ interface IProps {
     width?: number;
     height?: number;
     thumbnail: string;
-    setGlobalLoading?: (globalLoading: any) => void,
+    setGlobalLoading?: (globalLoading: GIGlobalLoading) => void,
     onCropUploadSuccess?: (fileObject: any) => void,
     onCropUploadFail?: (error: any) => void
 }
@@ -97,7 +97,7 @@ class UploadAvatar extends Component<IProps, IStates> {
     static defaultProps = {
         width: 200,
         height: 200,
-        setGlobalLoading: (globalLoading: any) => globalLoading,
+        setGlobalLoading: (globalLoading: GIGlobalLoading) => globalLoading,
         onCropUploadSuccess: () => false,
         onCropUploadFail: () => false
     };

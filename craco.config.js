@@ -90,10 +90,10 @@ module.exports = {
         compress: true,
         proxy: {
             '/api': {
-                target: 'http://localhost:90',
+                target: 'http://test.rongcl.cn/',
                 changeOrigin: true,
                 pathRewrite: {
-                    '^/api': '/'
+                    '^/api': '/api'
                 }
             }
         }
