@@ -24,6 +24,7 @@ interface IProps {
 
 const ClassAdmin: FC<IProps> = ({ setGlobalLoading }) => {
     const [isLoadClass, setLoadClass] = useState<boolean>(false);
+    const [isMounted, setIsMounted] = useState<boolean>(true);
     const [classList, setClassList] = useState<Array<ClassInfo>>([]);
     const [tableLoading, setTableLoading] = useState<boolean>(false);
     const [pagination, setPagination] = useState<TablePaginationConfig>({
@@ -221,9 +222,12 @@ const ClassAdmin: FC<IProps> = ({ setGlobalLoading }) => {
     useEffect(() => {
         if (!isLoadClass) {
             getClassData(1);
-            setLoadClass(true);
+            if (isMounted) {
+                setLoadClass(true);
+            }
         }
-    }, [getClassData, isLoadClass]);
+        return () => setIsMounted(false);
+    }, [getClassData, isLoadClass, isMounted]);
 
     return <div className="class-page">
         <Table rowKey={record => String(record.classId)}

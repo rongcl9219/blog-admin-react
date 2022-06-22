@@ -25,7 +25,7 @@ function getItem(
 }
 
 const items: MenuProps['items'] = [
-    getItem('主页', '', <SvgIcon iconClass='home-page' />),
+    getItem('主页', '/', <SvgIcon iconClass='home-page' />),
     getItem('分类管理', 'class', <SvgIcon iconClass='class-manage' />),
     getItem('标签管理', 'tag', <SvgIcon iconClass='tag' />),
     getItem('文章管理', 'article', <SvgIcon iconClass='article-manage' />),
@@ -43,7 +43,8 @@ const Aside: FC<CommonState> = ({ menuOpen }) => {
 
     const activeKey = (): string[] => {
         let arr: string[] = [];
-        arr.push(location.pathname.replace('/', ''));
+        const pathname = location.pathname.replace('/', '');
+        arr.push(pathname || '/');
         return arr;
     };
 
@@ -51,7 +52,7 @@ const Aside: FC<CommonState> = ({ menuOpen }) => {
         <aside className="aside-container">
             <Menu
                 onClick={onClick}
-                defaultSelectedKeys={activeKey()}
+                selectedKeys={activeKey()}
                 mode="inline"
                 inlineCollapsed={ menuOpen }
                 items={items}

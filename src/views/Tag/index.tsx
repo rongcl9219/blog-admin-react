@@ -20,6 +20,7 @@ interface ITagModal {
 
 const TagAdmin: FC<IProps> = ({ setGlobalLoading }) => {
     const [isLoadTag, setLoadTag] = useState<boolean>(false);
+    const [isMounted, setIsMounted] = useState<boolean>(true);
     const [tagList, setTagList] = useState<Array<TagInfo>>([]);
     const [tableLoading, setTableLoading] = useState<boolean>(false);
     const [pagination, setPagination] = useState<TablePaginationConfig>({
@@ -176,17 +177,20 @@ const TagAdmin: FC<IProps> = ({ setGlobalLoading }) => {
     useEffect(() => {
         ClassApi.getAllClass()
             .then((res) => {
-                setClassTypeOptions(res.data);
+                if (isMounted) {
+                    setClassTypeOptions(res.data);
+                }
             })
             .catch(() => false);
-    }, []);
 
-    useEffect(() => {
         if (!isLoadTag) {
             getTagList(1);
-            setLoadTag(true);
+            if (isMounted) {
+                setLoadTag(true);
+            }
         }
-    }, [getTagList, isLoadTag]);
+        return () => setIsMounted(false);
+    }, [getTagList, isLoadTag, isMounted]);
 
     return <div className="tag-page">
         <Table rowKey={record => String(record.tagId)}
