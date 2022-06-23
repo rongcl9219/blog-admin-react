@@ -76,6 +76,10 @@ class WebInfo extends Component<IProps, IState> {
         });
     }
 
+    componentWillUnmount() {
+        this.setState = () => false;
+    }
+
     avatarUploadSuccess = (fileObj: any) => {
         message.success('上传成功').then();
         this.setState({

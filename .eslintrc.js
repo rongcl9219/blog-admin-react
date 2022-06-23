@@ -215,6 +215,7 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': ['off'],
         '@typescript-eslint/no-inferrable-types': 'off',
         '@typescript-eslint/no-var-requires': 0,
+        '@typescript-eslint/no-this-alias': 0,
         'import/no-extraneous-dependencies': ['error', {'devDependencies': true}],
         'no-undef': 'off',
         'react/function-component-definition': [
