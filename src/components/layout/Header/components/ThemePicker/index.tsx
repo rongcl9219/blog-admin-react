@@ -1,4 +1,4 @@
-import React, { FC, useState, useMemo } from 'react';
+import React, { FC, useState } from 'react';
 import { SketchPicker } from 'react-color';
 import { Popover, Button, Space } from 'antd';
 import SvgIcon from '@/components/SvgIcon';
