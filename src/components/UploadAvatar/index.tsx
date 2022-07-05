@@ -1,10 +1,11 @@
-import React, { Component, createRef, ChangeEvent, MouseEvent, DragEvent, FormEvent } from 'react';
+import React, { Component, createRef, ChangeEvent, MouseEvent, DragEvent } from 'react';
 import { connect } from 'react-redux';
 import { toggleGlobalLoading } from '@/redux/reducers/common/actions';
-import { Modal, Row, Col, message, Avatar, Button } from 'antd';
+import { Modal, Row, Col, message, Avatar, Button, Slider } from 'antd';
 import { Md5 } from 'ts-md5/dist/md5';
 import { CommonApi } from '@/api';
 import './uploadAvatar.less';
+import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons';
 
 interface ISourceImgMouseDown {
     on: boolean;
@@ -15,11 +16,7 @@ interface ISourceImgMouseDown {
 }
 
 interface IScale {
-    zoomAddOn: boolean; // 按钮缩放事件开启
-    zoomSubOn: boolean; // 按钮缩放事件开启
-    range: number; // 最大100
-    rotateLeft: boolean; // 按钮向左旋转事件开启
-    rotateRight: boolean; // 按钮向右旋转事件开启
+    range: number; // 最大50
     x: number;
     y: number;
     width: number;
@@ -112,15 +109,13 @@ class UploadAvatar extends Component<IProps, IStates> {
 
     canvasRef = createRef<HTMLCanvasElement>();
 
+    sliderRef = createRef<any>();
+
     constructor(props: IProps) {
         super(props);
         this.state = {
             scale: {
-                zoomAddOn: false,
-                zoomSubOn: false,
                 range: 1,
-                rotateLeft: false,
-                rotateRight: false,
                 x: 0,
                 y: 0,
                 width: 0,
@@ -410,91 +405,20 @@ class UploadAvatar extends Component<IProps, IStates> {
         });
     };
 
-    // 按钮按下开始放大
-    startZoomAdd = () => {
+    // 按钮按下放大
+    handleZoomAdd = () => {
         const { scale } = this.state;
-        const zoom = () => {
-            const { scale: newScale } = this.state;
-            if (newScale.zoomAddOn) {
-                let range = 100;
-                if (newScale.range < 100) {
-                    range = newScale.range + 1;
-                }
-                this.zoomImg(range);
-                setTimeout(() => {
-                    zoom();
-                }, 60);
-            }
-        };
-        if (scale.range < 100) {
-            this.setState({
-                scale: {
-                    ...scale,
-                    zoomAddOn: true
-                }
-            }, () => {
-                zoom();
-            });
-        }
-    };
-
-    // 按钮松开或移开取消放大
-    endZoomAdd = () => {
-        const { scale } = this.state;
-        if (scale.zoomAddOn) {
-            this.setState({
-                scale: {
-                    ...scale,
-                    zoomAddOn: false
-                }
-            });
+        if (scale.range < 50) {
+            this.zoomImg(++scale.range);
         }
     };
 
     // 按钮按下开始缩小
-    startZoomSub = () => {
+    handleZoomSub = () => {
         const { scale } = this.state;
-        const zoom = () => {
-            const { scale: newScale } = this.state;
-            if (newScale.zoomSubOn) {
-                let range = 0;
-                if (newScale.range > 0) {
-                    range = newScale.range - 1;
-                }
-                this.zoomImg(range);
-                setTimeout(() => {
-                    zoom();
-                }, 60);
-            }
-        };
         if (scale.range > 0) {
-            this.setState({
-                scale: {
-                    ...scale,
-                    zoomSubOn: true
-                }
-            }, () => {
-                zoom();
-            });
+            this.zoomImg(--scale.range);
         }
-    };
-
-    // 按钮松开或移开取消缩小
-    endZoomSub = () => {
-        const { scale } = this.state;
-        if (scale.zoomSubOn) {
-            this.setState({
-                scale: {
-                    ...scale,
-                    zoomSubOn: false
-                }
-            });
-        }
-    };
-
-    zoomChange = (e: FormEvent) => {
-        const target = e.target as HTMLInputElement;
-        this.zoomImg(parseFloat(target.value));
     };
 
     reset = () => {
@@ -502,11 +426,7 @@ class UploadAvatar extends Component<IProps, IStates> {
         this.setState({
             scale: {
                 ...scale,
-                zoomAddOn: false, // 按钮缩放事件开启
-                zoomSubOn: false, // 按钮缩放事件开启
-                range: 1, // 最大100
-                rotateLeft: false, // 按钮向左旋转事件开启
-                rotateRight: false, // 按钮向右旋转事件开启
+                range: 1, // 最大50
                 x: 0,
                 y: 0,
                 width: 0,
@@ -682,29 +602,20 @@ class UploadAvatar extends Component<IProps, IStates> {
                                     className="img-copper-img-shade img-copper-img-shade-2"
                                 />
                             </div>
-                            { this.rangeShow ? <div className="img-copper-range">
-                                <input
-                                    className="img-copper-scale-input"
-                                    value={scale.range}
-                                    type="range"
-                                    step="1"
-                                    min="0"
-                                    max="100"
-                                    onInput={(e) => this.zoomChange(e)}
-                                />
-                                <i
-                                    className="img-copper-scale-down"
-                                    onMouseDown={this.startZoomSub}
-                                    onMouseOut={this.endZoomSub}
-                                    onMouseUp={this.endZoomSub}
-                                />
-                                <i
-                                    className="img-copper-scale-plus"
-                                    onMouseDown={this.startZoomAdd}
-                                    onMouseOut={this.endZoomAdd}
-                                    onMouseUp={this.endZoomAdd}
-                                />
-                            </div> : null }
+                            {
+                                this.rangeShow ? <div className="img-copper-range">
+                                    <MinusCircleOutlined onClick={this.handleZoomSub} />
+                                    <Slider ref={this.sliderRef} tooltipVisible={false} max={50}
+                                        value={scale.range}
+                                        onChange={this.zoomImg}
+                                        onAfterChange={() => {
+                                            setTimeout(() => {
+                                                this.sliderRef.current.blur();
+                                            }, 0);
+                                        }} />
+                                    <PlusCircleOutlined onClick={this.handleZoomAdd} />
+                                </div> : null
+                            }
                         </div>
                     </Col>
                     <Col span={7}>
