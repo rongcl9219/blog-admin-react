@@ -1,10 +1,11 @@
-import React, {Component} from 'react';
-import {Card, Form, Input, Button, message, Avatar} from 'antd';
-import {WebInfoApi} from '@/api';
-import {connect} from 'react-redux';
-import {toggleGlobalLoading} from '@/redux/reducers/common/actions';
+import React, { Component } from 'react';
+import { Card, Form, Input, Button, message, Image, Space } from 'antd';
+import { WebInfoApi } from '@/api';
+import { connect } from 'react-redux';
+import { toggleGlobalLoading } from '@/redux/reducers/common/actions';
 import UploadAvatar from '@/components/UploadAvatar';
-import type {FormInstance} from 'antd/es/form';
+import UploadImage from '@/components/UploadImage';
+import type { FormInstance } from 'antd/es/form';
 
 interface IProps {
     setGlobalLoading: (globalLoading: GIGlobalLoading) => void;
@@ -57,13 +58,23 @@ class WebInfo extends Component<IProps, IState> {
 
         WebInfoApi.getWebInfo().then(res => {
             const {paramData} = res.data;
+
+            let banner = [];
+
+            const webBanner = paramData.WEB_BANNER;
+            if (webBanner.key && webBanner.url) {
+                banner.push(webBanner);
+            }
+
             this.formRef.current?.setFieldsValue({
                 webUser: paramData.WEB_USER || '',
                 githubLink: paramData.GITHUB_LINK || '',
                 personalDesc: paramData.PERSONAL_DESC || '',
                 webDesc: paramData.WEB_DESC || '',
-                motto: paramData.MOTTO || ''
+                motto: paramData.MOTTO || '',
+                webBanner: banner
             });
+
             if (paramData.WEB_AVATAR) {
                 this.setState({
                     avatar: paramData.WEB_AVATAR
@@ -158,13 +169,21 @@ class WebInfo extends Component<IProps, IState> {
                     <Form.Item
                         label="头像"
                     >
-                        {avatar.url ?
-                            <Avatar style={{marginRight: '10px'}} src={avatar.url} size={60} shape="square"/> : null}
-                        <Button type="primary" onClick={() => {
-                            this.setState({
-                                avatarVisible: true
-                            });
-                        }}>上传头像</Button>
+                        <Space>
+                            {avatar.url ?
+                                <Image style={{borderRadius: '4px'}} src={avatar.url} width={60}/> : null}
+                            <Button type="primary" onClick={() => {
+                                this.setState({
+                                    avatarVisible: true
+                                });
+                            }}>上传头像</Button>
+                        </Space>
+                    </Form.Item>
+                    <Form.Item
+                        name="webBanner"
+                        label="网站banner"
+                    >
+                        <UploadImage maxCount={1} />
                     </Form.Item>
                     <Form.Item
                         label="个人简介"

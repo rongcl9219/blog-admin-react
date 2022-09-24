@@ -73,7 +73,7 @@ const data2blob = (data: any) => {
 };
 
 // 将文件转换成base64格式
-const getBase64 = (file: any) => new Promise<string | ArrayBuffer | null>((resolve, reject) => {
+const getBase64 = (file: File) => new Promise<string | ArrayBuffer | null>((resolve, reject) => {
     let reader = new FileReader();
     let imgResult: string | ArrayBuffer | null;
     reader.readAsDataURL(file);
