@@ -81,6 +81,8 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "prettier": "^2.5.1",
     "svg-sprite-loader": "^6.0.11",
-    "svgo-loader": "^3.0.0"
+    "svgo-loader": "^3.0.0",
+    "uglifyjs-webpack-plugin": "1",
+    "webpack-bundle-analyzer": "^4.6.1"
   }
 }
