@@ -9,10 +9,16 @@ import '@/style/app.less';
 import 'antd/dist/antd.variable.min.css';
 import '@/svg';
 import zhCN from 'antd/lib/locale/zh_CN';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, message } from 'antd';
 import { initTheme } from '@/theme/theme';
 
 initTheme();
+
+message.config({
+    duration: 2,
+    maxCount: 5,
+    rtl: true
+});
 
 ReactDOM.render(
     <Provider store={store}>
