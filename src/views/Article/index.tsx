@@ -70,6 +70,7 @@ class ArticleAdmin extends Component<IProps, IState> {
             if (res.code === 200) {
                 this.setState({
                     queryInfo: {
+                        ...queryInfo,
                         page: res.data.pagination.page,
                         pageSize: res.data.pagination.pageSize,
                         total: res.data.pagination.total
@@ -93,8 +94,8 @@ class ArticleAdmin extends Component<IProps, IState> {
         const { queryInfo } = this.state;
         this.setState({
             queryInfo: {
-                articleStatus: value,
-                ...queryInfo
+                ...queryInfo,
+                articleStatus: value
             }
         }, () => {
             this.getArticleList();
@@ -102,8 +103,10 @@ class ArticleAdmin extends Component<IProps, IState> {
     };
 
     handleSizeChange = (page: number) => {
+        const {queryInfo} = this.state;
         this.setState({
             queryInfo: {
+                ...queryInfo,
                 page: page,
                 pageSize: 10
             }

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Tooltip, Tag, Button, Popover, message } from 'antd';
+import { Tooltip, Tag, Button, Popover, message, Modal } from 'antd';
 import { TagsFilled, MoreOutlined } from '@ant-design/icons';
 import { ArticleInfo } from '@/api/article/types';
 import { TagInfo } from '@/api/tag/types';
@@ -36,6 +36,36 @@ const ArticleItem: FC<IProps> = ({articleInfo, getArticleList, setFormDrawerVisi
             });
     };
 
+    const handleDelete = () => {
+        Modal.confirm({
+            title: '提示',
+            content: '确定删除该文章？',
+            okText: '确定',
+            cancelText: '取消',
+            onOk() {
+                ArticleApi.deleteArticle(articleInfo.articleId)
+                    .then(() => {
+                        message.success('删除成功').then();
+                        getArticleList();
+                    })
+                    .catch(() => {
+                        message.error('删除失败').then();
+                    });
+            }
+        });
+    };
+
+    const reversalArticle = () => {
+        ArticleApi.recoverArticle(articleInfo.articleId)
+            .then(() => {
+                message.success('恢复成功').then();
+                getArticleList();
+            })
+            .catch(() => {
+                message.error('恢复失败').then();
+            });
+    };
+
     return <div className="article-item">
         <div className="article-item-con">
             <div className="article-item-left">
@@ -66,11 +96,11 @@ const ArticleItem: FC<IProps> = ({articleInfo, getArticleList, setFormDrawerVisi
                 <div className="item-info-opt">
                     {
                         articleInfo.isDelete === 1 ?
-                            <Button type="link">恢复删除</Button> :
+                            <Button type="link" onClick={reversalArticle}>恢复删除</Button> :
                             articleInfo.isPublish === 1 ? null :
                                 <><Button type="link" onClick={() => setFormDrawerVisible(true, 2, articleInfo.articleId)}>编辑信息</Button>
                                     <Button type="link">编辑文章</Button>
-                                    <Popover content={<Button type="primary" size="small" danger>删除</Button>}>
+                                    <Popover content={<Button type="primary" size="small" danger onClick={handleDelete}>删除</Button>}>
                                         <MoreOutlined />
                                     </Popover>
                                 </>
