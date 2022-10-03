@@ -115,6 +115,15 @@ const UploadImage: FC<IProps> = ({value = [], className = '', onChange, style = 
     const onRemove = (file: UploadFile) => {
         const fileList = newFileList.filter(item => item.uid !== file.uid);
         setFileList(fileList);
+        let newList: Array<GIFileInfo> = [];
+
+        fileList.forEach(item => {
+            if (item.response) {
+                newList.push(item.response);
+            }
+        });
+
+        onChange?.(newList);
     };
 
     useEffect(() => {

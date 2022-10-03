@@ -4,6 +4,6 @@
 export interface TagInfo {
     tagId?: number;
     tagName: string;
-    classType: string;
+    classType: number;
     tagDesc?: string;
 }
