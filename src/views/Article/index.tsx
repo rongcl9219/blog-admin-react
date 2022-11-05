@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { message, Select, Card, Button, Pagination } from 'antd';
+import { message, Select, Card, Button, Pagination, Modal } from 'antd';
 import NoData from '@/components/NoData';
 import ArticleItem from '@/views/Article/ArticleItem';
 import ArticleForm from '@/views/Article/ArticleForm';
@@ -10,6 +10,7 @@ import { ArticleList as ArticleQueryIProps, ArticleInfo } from '@/api/article/ty
 import './article.less';
 import { TagInfo } from '@/api/tag/types';
 import { ClassInfo } from '@/api/class/types';
+import MdEditor from '@/components/MdEditor';
 
 interface Article extends ArticleInfo {
     articleId: string;
@@ -28,6 +29,11 @@ interface IState {
         visible: boolean;
         type: number;
         articleId?: string;
+    },
+    editorModal: {
+        visible: boolean;
+        articleId: string;
+        content: string;
     }
 }
 
@@ -50,7 +56,12 @@ class ArticleAdmin extends Component<IProps, IState> {
                 type: 1,
                 articleId: ''
             },
-            articleList: []
+            articleList: [],
+            editorModal: {
+                visible: false,
+                articleId: '',
+                content: ''
+            }
         };
     }
 
@@ -123,8 +134,28 @@ class ArticleAdmin extends Component<IProps, IState> {
         });
     };
 
+    setEditorVisible = (visible: boolean, articleId?: string) => {
+        this.setState({
+            editorModal: {
+                visible: visible,
+                articleId: articleId || '',
+                content: ''
+            }
+        });
+    };
+
+    editorCancel = () => {
+        this.setState({
+            editorModal: {
+                visible: false,
+                articleId: '',
+                content: ''
+            }
+        });
+    };
+
     render() {
-        const { articleList, queryInfo, formDrawer } = this.state;
+        const { articleList, queryInfo, formDrawer, editorModal } = this.state;
         return <div className="article-page">
             <Card>
                 <div className="search-form">
@@ -140,7 +171,7 @@ class ArticleAdmin extends Component<IProps, IState> {
                 <div className="article-wrap">
                     {
                         articleList.length > 0 ?
-                            articleList.map(article => <ArticleItem setFormDrawerVisible={this.setFormDrawerVisible} getArticleList={this.getArticleList} articleInfo={article} key={article.articleId}/>) :
+                            articleList.map(article => <ArticleItem setEditorVisible={this.setEditorVisible} setFormDrawerVisible={this.setFormDrawerVisible} getArticleList={this.getArticleList} articleInfo={article} key={article.articleId}/>) :
                             <NoData/>
                     }
                 </div>
@@ -154,6 +185,15 @@ class ArticleAdmin extends Component<IProps, IState> {
                 </div>
             </Card>
             <ArticleForm getArticleList={this.getArticleList} visible={formDrawer.visible} articleId={formDrawer.articleId} setVisible={this.setFormDrawerVisible} type={formDrawer.type} />
+            <Modal visible={editorModal.visible}
+                onCancel={this.editorCancel}
+                wrapClassName="markdown-content"
+                closable={false}
+                style={{ height: '100%', top: 16, padding: 0, maxHeight: 'calc(100vh - 32px)' }}
+                bodyStyle={{height: 'calc(100vh - 85px)'}}
+                width="100%">
+                <MdEditor />
+            </Modal>
         </div>;
     }
 }

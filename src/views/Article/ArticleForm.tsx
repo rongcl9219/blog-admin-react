@@ -142,7 +142,7 @@ const ArticleForm: FC<IProps> = ({type = 1, articleId, getArticleList, visible, 
                 label="文章简介"
                 rules={[{ required: true, message: '请输入文章简介' }]}
             >
-                <Input placeholder="文章简介" />
+                <Input.TextArea placeholder="文章简介" />
             </Form.Item>
             <Form.Item
                 name="articleCover"

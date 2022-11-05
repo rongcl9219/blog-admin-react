@@ -21,9 +21,10 @@ interface IProps {
     articleInfo: Article;
     getArticleList: () => void;
     setFormDrawerVisible: (visible: boolean, type?: number, articleId?: string) => void;
+    setEditorVisible: (visible: boolean, article?: string) => void;
 }
 
-const ArticleItem: FC<IProps> = ({articleInfo, getArticleList, setFormDrawerVisible}) => {
+const ArticleItem: FC<IProps> = ({articleInfo, getArticleList, setFormDrawerVisible, setEditorVisible}) => {
     const updateArticlePublish = () => {
         const tip = articleInfo.isPublish === 0 ? '发布' : '取消发布';
         ArticleApi.updatePublish(articleInfo.articleId, articleInfo.isPublish)
@@ -99,7 +100,7 @@ const ArticleItem: FC<IProps> = ({articleInfo, getArticleList, setFormDrawerVisi
                             <Button type="link" onClick={reversalArticle}>恢复删除</Button> :
                             articleInfo.isPublish === 1 ? null :
                                 <><Button type="link" onClick={() => setFormDrawerVisible(true, 2, articleInfo.articleId)}>编辑信息</Button>
-                                    <Button type="link">编辑文章</Button>
+                                    <Button type="link" onClick={() => setEditorVisible(true, articleInfo.articleId) }>编辑文章</Button>
                                     <Popover content={<Button type="primary" size="small" danger onClick={handleDelete}>删除</Button>}>
                                         <MoreOutlined />
                                     </Popover>
