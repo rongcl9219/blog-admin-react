@@ -154,6 +154,16 @@ class ArticleAdmin extends Component<IProps, IState> {
         });
     };
 
+    editorChange = (content: string) => {
+        const { editorModal } = this.state;
+        this.setState({
+            editorModal: {
+                ...editorModal,
+                content: content
+            }
+        });
+    };
+
     render() {
         const { articleList, queryInfo, formDrawer, editorModal } = this.state;
         return <div className="article-page">
@@ -192,7 +202,7 @@ class ArticleAdmin extends Component<IProps, IState> {
                 style={{ height: '100%', top: 16, padding: 0, maxHeight: 'calc(100vh - 32px)' }}
                 bodyStyle={{height: 'calc(100vh - 85px)'}}
                 width="100%">
-                <MdEditor />
+                <MdEditor content={editorModal.content} onChange={this.editorChange}/>
             </Modal>
         </div>;
     }
