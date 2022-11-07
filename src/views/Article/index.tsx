@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { message, Select, Card, Button, Pagination, Modal } from 'antd';
+import { message, Select, Card, Button, Pagination, Modal, notification } from 'antd';
 import NoData from '@/components/NoData';
 import ArticleItem from '@/views/Article/ArticleItem';
 import ArticleForm from '@/views/Article/ArticleForm';
@@ -135,13 +135,28 @@ class ArticleAdmin extends Component<IProps, IState> {
     };
 
     setEditorVisible = (visible: boolean, articleId?: string) => {
-        this.setState({
-            editorModal: {
-                visible: visible,
-                articleId: articleId || '',
-                content: ''
-            }
-        });
+        if (visible && articleId) {
+            ArticleApi.getContent(articleId)
+                .then((res) => {
+                    this.setState({
+                        editorModal: {
+                            visible: visible,
+                            articleId: articleId || '',
+                            content: res.data.articleContent || ''
+                        }
+                    });
+                })
+                .catch(() => {
+                    this.setState({
+                        editorModal: {
+                            visible: visible,
+                            articleId: articleId || '',
+                            content: ''
+                        }
+                    });
+                    message.error('获取内容失败').then();
+                });
+        }
     };
 
     editorCancel = () => {
@@ -162,6 +177,23 @@ class ArticleAdmin extends Component<IProps, IState> {
                 content: content
             }
         });
+    };
+
+    saveArticleContent = () => {
+        const { editorModal } = this.state;
+        ArticleApi.saveContent(editorModal.articleId, editorModal.content)
+            .then(() => {
+                notification.success({
+                    message: '保存成功',
+                    duration: 2
+                });
+            })
+            .catch(() => {
+                notification.error({
+                    message: '保存失败',
+                    duration: 2
+                });
+            });
     };
 
     render() {
@@ -197,12 +229,15 @@ class ArticleAdmin extends Component<IProps, IState> {
             <ArticleForm getArticleList={this.getArticleList} visible={formDrawer.visible} articleId={formDrawer.articleId} setVisible={this.setFormDrawerVisible} type={formDrawer.type} />
             <Modal visible={editorModal.visible}
                 onCancel={this.editorCancel}
+                onOk={this.saveArticleContent}
                 wrapClassName="markdown-content"
                 closable={false}
                 style={{ height: '100%', top: 16, padding: 0, maxHeight: 'calc(100vh - 32px)' }}
                 bodyStyle={{height: 'calc(100vh - 85px)'}}
+                keyboard={false}
+                maskClosable={false}
                 width="100%">
-                <MdEditor content={editorModal.content} onChange={this.editorChange}/>
+                <MdEditor content={editorModal.content} onChange={this.editorChange} onSave={this.saveArticleContent} />
             </Modal>
         </div>;
     }
