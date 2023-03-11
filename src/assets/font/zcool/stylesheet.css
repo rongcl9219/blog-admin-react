@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'zcool-kuaile';
+    src: url('ZCOOLKuaiLe-Regular.eot');
+    src: url('ZCOOLKuaiLe-Regular.eot?#iefix') format('embedded-opentype'),
+        url('ZCOOLKuaiLe-Regular.woff2') format('woff2'),
+        url('ZCOOLKuaiLe-Regular.woff') format('woff'),
+        url('ZCOOLKuaiLe-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

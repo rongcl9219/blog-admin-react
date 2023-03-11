@@ -1,0 +1,42 @@
+@import url('@/style/mixins.less');
+
+.aside-container {
+    position: relative;
+    float: left;
+    height: 100%;
+
+    .ant-menu-inline .ant-menu-item, .ant-menu-inline .ant-menu-submenu-title {
+        width: calc(100%);
+    }
+
+    .ant-menu-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .svg-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+    }
+
+    .ant-menu {
+        width: 210px;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        .scrollBar();
+    }
+
+    .ant-menu-inline-collapsed {
+        width: 54px;
+    }
+
+    // 调整antd-menu样式
+    .ant-menu-item {
+        margin: 0 !important;
+        height: 50px;
+        line-height: 50px;
+    }
+}

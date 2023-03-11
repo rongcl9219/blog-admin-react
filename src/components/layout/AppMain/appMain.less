@@ -1,0 +1,13 @@
+@import url('@/style/mixins.less');
+
+.app-main {
+    height: calc(100vh - 100px);
+
+    .app-main-content {
+        max-height: 100%;
+        padding: 10px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        .scrollBar();
+    }
+}

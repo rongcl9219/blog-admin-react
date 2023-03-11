@@ -1,0 +1,70 @@
+.home-page {
+    .card-header {
+        font-family: zcool-kuaile, sans-serif;
+        color: var(--ant-primary-5);
+
+        .header-title {
+            margin-right: 20px;
+            font-size: 20px;
+        }
+    }
+
+    .header-title {
+        font-family: zcool-kuaile, sans-serif;
+        color: var(--ant-primary-color);
+        font-size: 18px;
+    }
+
+    .about {
+        padding-left: 20px;
+    }
+
+    .list-item {
+        display: flex;
+        align-items: center;
+        line-height: 28px;
+        font-family: zcool-kuaile, sans-serif;
+
+        .list-item-title {
+            display: flex;
+            align-items: center;
+            color: var(--ant-primary-3);
+            cursor: pointer;
+            transition: 0.2s;
+
+            &:hover {
+                color: var(--ant-primary-color);
+            }
+
+            span {
+                color: var(--ant-primary-color);
+            }
+        }
+
+        .svg-icon {
+            margin-right: 10px;
+            font-size: 12px;
+            transform: scale(0.7);
+        }
+    }
+
+    .list-article {
+        height: 28px;
+
+        &:hover .list-time {
+            color: var(--ant-primary-color);
+        }
+
+        .list-time {
+            font-size: 15px;
+            color: var(--ant-primary-3);
+            transition: 0.2s;
+        }
+
+        .article-title {
+            font-size: 15px;
+            padding-left: 10px;
+            color: var(--ant-primary-color);
+        }
+    }
+}
